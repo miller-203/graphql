@@ -229,11 +229,6 @@ function displayUserSpecial(userData) {
     <header>
         <h1>Welcome, ${userData.data.user[0].firstName} ${userData.data.user[0].lastName}!</h1>
         <button class="logout-btn" onclick="logoutSection()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 17L21 12L16 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M21 12H9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
                 Logout
         </button>
     </header>
@@ -249,11 +244,6 @@ function displayProfile(userData) {
         <header>
             <h1>Welcome, ${userData.data.user[0].firstName} ${userData.data.user[0].lastName}!</h1>
             <button class="logout-btn" onclick="logoutSection()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 17L21 12L16 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M21 12H9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
                     Logout
             </button>
         </header>
@@ -308,8 +298,7 @@ function displayProfile(userData) {
         </main>
         <main>
             <section class="Skills-info">
-                <h1>Best Skills</h1>
-                <svg width="350" height="350" viewBox="0 0 400 400">
+                <svg width="350" height="350" viewBox="0 0 400 400" class="svg_circle">
                     <g transform="translate(200,200)">
                         <circle cx="0" cy="0" r="20" stroke="#888" fill="none"/>
                         <circle cx="0" cy="0" r="40" stroke="#888" fill="none"/>
@@ -322,13 +311,9 @@ function displayProfile(userData) {
                         <circle cx="0" cy="0" r="180" stroke="#888" fill="none"/>
                         <circle cx="0" cy="0" r="200" stroke="#888" fill="none"/>
 
-                        <line x1="0" y1="-180" x2="0" y2="180" stroke="#888"/>
-                        <line x1="-127.28" y1="-127.28" x2="127.28" y2="127.28" stroke="#888"/>
-                        <line x1="-180" y1="0" x2="180" y2="0" stroke="#888"/>
-                        <line x1="-127.28" y1="127.28" x2="127.28" y2="-127.28" stroke="#888"/>
-                        <line x1="0" y1="180" x2="0" y2="-180" stroke="#888"/>
+                        <line x1="0" y1="200" x2="0" y2="-200" stroke="#888"/>
                         <line x1="127.28" y1="127.28" x2="-127.28" y2="-127.28" stroke="#888"/>
-                        <line x1="180" y1="0" x2="-180" y2="0" stroke="#888"/>
+                        <line x1="200" y1="0" x2="-200" y2="0" stroke="#888"/>
                         <line x1="127.28" y1="-127.28" x2="-127.28" y2="127.28" stroke="#888"/>
                         
                         <text x="0" y="-185" fill="white" text-anchor="middle">Go</text>
@@ -383,13 +368,11 @@ function updateGraph(data) {
 }
 
 function updateGraphXp(datas) {
-    // console.log(datas);
     let cumulativeXP = 0;
     const width = 600;
     const height = 400;
 
-    const dataPoints = datas.map((data) => {
-
+    const dataPoints = datas.map(data => {
         cumulativeXP += data.amount;
         return {
             date: new Date(data.createdAt),
@@ -398,18 +381,22 @@ function updateGraphXp(datas) {
         };
     });
 
-    
     if (dataPoints.length === 0) return;
+
+    const minXP = Math.min(...dataPoints.map(p => p.xp));
+    const maxXP = Math.max(...dataPoints.map(p => p.xp));
+
+    const offset = minXP < 0 ? -minXP : 0;
 
     const endTime = dataPoints[dataPoints.length - 1].date;
     const startTime = dataPoints[0].date;
-    const maxXP = dataPoints[dataPoints.length - 1].xp;    
 
     const pathData = dataPoints.map((point, index) => {
         const x = scaleX(point.date, endTime, startTime, width);
-        const y = scaleY(point.xp, maxXP, height);
+        const y = scaleY(point.xp + offset, maxXP + offset, height);
         return `${index === 0 ? "M" : "L"} ${x} ${y}`;
     }).join(" ");
+
 
     const border = document.getElementById("result")
     const svg = document.getElementById("svg");
@@ -426,7 +413,7 @@ function updateGraphXp(datas) {
 
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
-        circle.setAttribute("r", "5");
+        circle.setAttribute("r", "3");
         circle.setAttribute("fill", "#bb7eec");
         circle.addEventListener("mouseenter", (e) => {
             const div = document.createElement("div");
@@ -437,13 +424,16 @@ function updateGraphXp(datas) {
 
             div.style.left = "10px";
             div.style.top = "10px";
-            div.style.backgroundColor = "#fdf0f0ee";
+            div.style.backgroundColor = "#575454";
             div.style.zIndex = "1000";
+            div.style.borderRadius = "20px"
+            div.style.paddingLeft = "10px"
+            div.style.paddingTop = "10px"
 
-            circle.setAttribute("r", "8");
+            circle.setAttribute("r", "5");
             circle.addEventListener("mouseleave", () => {
                 div.remove();
-                circle.setAttribute("r", "5");
+                circle.setAttribute("r", "3");
             });
             border.append(div);
         });
@@ -458,5 +448,6 @@ function scaleX(date, endDate, startDate, width) {
 }
 
 function scaleY(xp, maxXP, height) {
-    return height - (xp / maxXP) * height;
+    const safeXP = xp < 0 ? 0 : xp;
+    return height - (safeXP / maxXP) * height;
 }
